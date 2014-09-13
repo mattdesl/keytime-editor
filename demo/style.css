@@ -1,0 +1,11 @@
+.timeline-container {
+    width: 400px;
+}
+
+.main-container {
+	width: 100%;
+	height: auto;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}

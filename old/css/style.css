@@ -1,0 +1,169 @@
+/*
+	Editors
+ */
+
+.number-editor {
+	width: 40px;
+	border: 0;
+	text-align: right;
+	color: #cd7016;
+	font-weight: bold;
+	border-bottom: 1px dotted #cd7016;
+	margin-right: 5px;
+	margin-left: 5px;
+}
+
+/*
+
+ */
+
+.playhead {
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: blue;
+	opacity: 0.5;
+	width: 1px;
+	height: 100%;
+	pointer-events: none;
+}
+
+.keyframe {
+	position: absolute;
+	top: 10px;
+	left: 0;
+	margin: -4px 0 0 -4px;
+	padding: 0;
+	display: inline-block;
+	border-radius: 50% 50%;
+	border: 2px solid red;
+	width: 4px;
+	height: 4px;
+}
+
+/*
+	Generic
+ */
+
+.timeline-row {
+	line-height: 22px;
+}
+
+.timeline-layer {
+	line-height: 22px;
+}
+
+.animations-layer {
+	line-height: 22px;
+}
+.animations-layer:nth-child(odd) { 
+    background-color:#dcdcdc; 
+}
+.animations-layer:nth-child(even) { 
+    background-color:#c5c5c5; 
+}
+.animations-layer {
+	width: 200%;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+/**
+ * timeline
+ */
+
+
+.timeline-container, .animations-container {
+	width: 50%;
+	position: relative;
+	display: inline-block;
+	vertical-align: top;
+	overflow-x: scroll;
+	overflow-y: hidden;
+	box-sizing: border-box;
+	/*border: 1px solid #b0b0b0;*/
+}
+.animations-container {
+	cursor: pointer;
+}
+.timeline-container {
+	border-right: 1px solid #b0b0b0;
+}
+
+.timeline-header {
+	display: inline-block;
+	width: 100%;
+	height: 22px;
+}
+.animations-header {
+	display: inline-block;
+	width: 100%;
+}
+
+.timeline-header > .buttons {
+	float: right;
+	display: inline-block;
+}
+
+.timeline-layer:nth-child(odd) { 
+    background-color:#dcdcdc; 
+}
+.timeline-layer:nth-child(even) { 
+    background-color:#c5c5c5; 
+}
+
+.timeline-control, .animations-control {
+	height: 22px;
+	position: relative;
+	background: white;
+	padding-left: 5px;
+	padding-right: 5px;
+ 	border-top: 1px solid #b0b0b0;
+}
+.controls:first-child {
+	border-top: 0;
+}
+
+.keyframe-previous, .keyframe-next, .keyframe-toggle {
+	font-size: 10px;
+	cursor: pointer;
+}
+
+
+
+.expand, .lock, .visible, .solo {
+	font-size: 12px;
+	line-height: 22px;
+	cursor: pointer;
+}
+
+.expand {
+	padding-left: 5px;
+}
+.visible {
+	padding-right: 5px;
+}
+
+.controls, .animations-control {
+	display: none;
+}
+
+.control-editor {  
+	float: right;
+	text-align: right;
+}
+
+.timeline-layer.layer-open > .controls {
+	display: block;
+}
+
+.animations-layer.layer-open > .animations-control {
+	display: block;
+}
+
+.layer-open > .expand {
+	font-weight: bold;
+}
