@@ -23,6 +23,7 @@
 	color: #cd7016;
 	font-weight: bold;
 	border-bottom: 1px dotted #cd7016;
+	background: transparent;
 	margin-right: 5px;
 	margin-left: 5px;
 }
@@ -91,7 +92,6 @@
  * timeline
  */
 
-
 .timeline-container, .animations-container {
 	width: 50%;
 	position: relative;
@@ -108,6 +108,7 @@
 .timeline-container {
 	border-right: 1px solid #b0b0b0;
 }
+
 
 .timeline-header {
 	display: inline-block;
@@ -182,4 +183,9 @@
 
 .layer-open > .timeline-header > .expand {
 	font-weight: bold;
+}
+
+
+.highlight {
+	background-color: rgb(236,242,255);
 }

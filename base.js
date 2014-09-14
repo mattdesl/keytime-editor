@@ -1,4 +1,4 @@
-var Timeline = require('./lib/timeline')
+var Timeline = require('./lib/timeline-data')
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
 
@@ -13,7 +13,7 @@ function EditorBase() {
 	if (!(this instanceof EditorBase))
 		return new EditorBase()
 	EventEmitter.call(this)
-	this.timelines = []
+	this.timelinesData = []
 	this._playhead = 0
 }
 
@@ -31,10 +31,10 @@ EditorBase.prototype.playhead = function(time) {
 }
 
 EditorBase.prototype._generateName = function() {
-	var count = this.timelines.length
+	var count = this.timelinesData.length
 	var base = 'timeline'
 	var idx
-	while ( (idx = indexOfName(this.timelines, base+count)) >= 0 ) 
+	while ( (idx = indexOfName(this.timelinesData, base+count)) >= 0 ) 
 		count++
 	return base+count
 }
@@ -44,9 +44,26 @@ EditorBase.prototype._createTimeline = function(timeline, name) {
 	return Timeline(timeline, name)
 }
 
+//gets timeline by name or index
+EditorBase.prototype.timeline = function(name) {
+	var idx = typeof name === 'number' ? name : indexOfName(this.timelinesData, name)
+	if (idx === -1)
+		return null
+	return this.timelinesData[idx].timeline
+}
+
+EditorBase.prototype.open = function(name, show) {
+	show = show !== false
+	var idx = typeof name === 'number' ? name : indexOfName(this.timelinesData, name)
+	if (idx === -1)
+		return
+	this.timelinesData[idx].open = show
+} 
+
 EditorBase.prototype.add = function(timeline, name) {
 	name = name||this._generateName()
-	this.timelines.push(this._createTimeline(timeline, name))
+	this.timelinesData.push(this._createTimeline(timeline, name))
+	this.emit('load')
 }
 
 module.exports = EditorBase

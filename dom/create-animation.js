@@ -10,28 +10,34 @@ var events = require('dom-events')
 var domify = require('domify')
 
 //DOM area to visualize/edit keyframes and shape timelines
-module.exports = function(editor, timeline) {
+module.exports = function(editor, timelineData) {
 	var container = domify(timelineHTML)
 
-	timeline.properties.forEach(function(prop) {
+	timelineData.propertyData.forEach(function(propData) {
+		var prop = propData.property //the original keytime property object
 		var propElement = domify(propertyHTML)
+		propData.animationElement = propElement
 
 		var frames = prop.keyframes.frames
+		propData.keyframeData.length = 0 
+
 		for (var i=0; i<frames.length; i++) {
-			var key = editor._createKeyframe(timeline, prop, frames[i])
-			propElement.appendChild(key.element)
+			propData.addKeyframe(editor, frames[i], true)
 		}
+
+	    events.on(propElement, 'mousedown', function(ev) {
+	    	editor.emit('highlight-property', propData)
+	    })
 
 		container.appendChild(propElement)
 	})
 
 	//show/hide this container along with the timeline element
-    timeline.on('opened', function() {
-        console.log("LAYER OPEN")
+    timelineData.on('opened', function() {
         classes.remove(container, 'layer-open')
         classes.add(container, 'layer-open')
     })
-    timeline.on('closed', function() {
+    timelineData.on('closed', function() {
         classes.remove(container, 'layer-open')
     })
 

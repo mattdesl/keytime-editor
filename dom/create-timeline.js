@@ -6,7 +6,7 @@ var classes = require('dom-classes')
 var events = require('dom-events')
 var domify = require('domify')
 
-var BaseTimeline = require('../lib/timeline')
+var BaseTimeline = require('../lib/timeline-data')
 var createProperty = require('./create-property')
 var createAnimation = require('./create-animation')
 
@@ -14,7 +14,7 @@ var createAnimation = require('./create-animation')
 module.exports = function(editor, timeline, name) {
 	//the container for this row
 	var ret = BaseTimeline(timeline, name)
-	ret.properties = []
+	ret.propertyData = []
 
     //the element which holds buttons, name, etc.
     var element = hyperglue(html, {
@@ -25,9 +25,9 @@ module.exports = function(editor, timeline, name) {
     //the properties for this timeline
     var controlContainer = $('.controls', element)
     ;(timeline.properties||[]).forEach(function(p) {
-        var prop = createProperty(editor, p)
+        var prop = createProperty(editor, ret, p)
         controlContainer.appendChild(prop.element)
-        ret.properties.push(prop)
+        ret.propertyData.push(prop)
     })
 
     //setup events
