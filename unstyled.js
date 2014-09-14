@@ -5,6 +5,7 @@ var domify = require('domify')
 var clickdrag = require('clickdrag')
 var events = require('dom-events')
 var keycode = require('keycode')
+var getMouseOffset = require('mouse-event-offset')
 
 var NumberEditors = require('./dom/number-editors')
 var createTimeline = require('./dom/create-timeline')
@@ -38,7 +39,8 @@ function Editor() {
     
 
     this.draggable = clickdrag(this.rightPanel)
-    this.draggable.on('start', onDrag.bind(this))
+    this.propertyDrag = null
+    this.draggable.on('start', onDragStart.bind(this))
     this.draggable.on('move', onDrag.bind(this))
     this.draggable.on('end', onDragEnd.bind(this))
     this.draggingKeyframe = null
@@ -55,14 +57,13 @@ function Editor() {
     	classes.add(prop.animationElement, 'highlight')
     }.bind(this))
 
-    events.on(this.element, 'keydown', handleKey.bind(this))
-    
+    events.on(document, 'keydown', handleKey.bind(this), true)
+
 }
 
 inherits(Editor, Base)
 
 function handleKey(ev) {
-	console.log("EVENT", ev)
 	var key = keycode(ev)
 	if (key === 'left') {
 		ev.preventDefault()
@@ -92,9 +93,22 @@ function keyframeNext(goNext, propertyData) {
     }
 }
 
+function onDragStart(ev) {
+	if (this.draggingKeyframe)
+		this.propertyDrag = this.draggingKeyframe.element.parentNode
+	else
+		this.propertyDrag = ev.target
+	onDrag(ev)
+}
+
 function onDrag(ev, offset, delta) {
-	ev.preventDefault()
-	ev.stopPropagation()
+	ev.preventDefault()	
+	if (!this.propertyDrag)
+		return
+
+	var rect = this.propertyDrag.getBoundingClientRect()
+    offset = getMouseOffset(ev, { clientRect: rect })
+    
 	if (this.draggingKeyframe) {
 		this.draggingKeyframe.element.style.left = Math.round(offset.x)+'px'
 		this.draggingKeyframe.keyframe.time = offset.x/SCALE
@@ -106,6 +120,7 @@ function onDrag(ev, offset, delta) {
 
 function onDragEnd(ev, offset, delta) {
 	this.draggingKeyframe = null
+	this.propertyDrag = null
 }
 
 function handlePlayhead(time) {
@@ -152,6 +167,41 @@ Editor.prototype.createValueEditor = function(timeline, property) {
 	return null
 }
 
+function setVisible(timelineData, vis) {
+	if (vis) {
+		classes.remove(timelineData.animationContainer, 'hide')
+		classes.remove(timelineData.element, 'hide')
+	} else {
+		classes.add(timelineData.animationContainer, 'hide')
+		classes.add(timelineData.element, 'hide')
+	}
+
+}
+
+Editor.prototype.hideAll = function() {
+	this.timelinesData.forEach(function(t) {
+		setVisible(t, false)
+	})
+}
+
+Editor.prototype.showAll = function() {
+	this.timelinesData.forEach(function(t) {
+		setVisible(t, true)
+	})
+}
+
+Editor.prototype.hide = function(name) {
+	var ret = this.timelineData(name)
+	if (ret)
+		setVisible(ret, false)
+}
+
+Editor.prototype.show = function(name) {
+	var ret = this.timelineData(name)
+	if (ret)
+		setVisible(ret, true)
+}
+
 Editor.prototype._toggleKeyframe = function(timelineData, propertyData) {
 	var time = this.playhead()
 	propertyData.toggleKeyframe(this, timelineData.timeline, time)
@@ -185,6 +235,19 @@ Editor.prototype.appendTo = function(element) {
 
 Editor.prototype.constraint = function(name, constraints) {
 	this.constraints[name] = constraints
+}
+
+Editor.prototype.clear = function() {
+	this.timelinesData.forEach(function(t) {
+		t.dispose()
+	})
+	this.timelinesData.length = 0
+}
+
+Editor.prototype.add = function(timeline, name) {
+	var ret = Base.prototype.add.call(this, timeline, name)
+
+	ret.animationContainer.style.minWidth = Math.round((timeline.duration()+1.0)*SCALE)+'px'
 }
 
 module.exports = Editor

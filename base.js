@@ -44,26 +44,32 @@ EditorBase.prototype._createTimeline = function(timeline, name) {
 	return Timeline(timeline, name)
 }
 
-//gets timeline by name or index
-EditorBase.prototype.timeline = function(name) {
+EditorBase.prototype.timelineData = function(name) {
 	var idx = typeof name === 'number' ? name : indexOfName(this.timelinesData, name)
 	if (idx === -1)
 		return null
-	return this.timelinesData[idx].timeline
+	return this.timelinesData[idx]
+}
+
+//gets timeline by name or index
+EditorBase.prototype.timeline = function(name) {
+	var ret = this.timelineData(name)
+	return ret ? ret.timeline : null
 }
 
 EditorBase.prototype.open = function(name, show) {
 	show = show !== false
-	var idx = typeof name === 'number' ? name : indexOfName(this.timelinesData, name)
-	if (idx === -1)
-		return
-	this.timelinesData[idx].open = show
+	var ret = this.timelineData(name)
+	if (ret)
+		ret.open = show
 } 
 
 EditorBase.prototype.add = function(timeline, name) {
 	name = name||this._generateName()
-	this.timelinesData.push(this._createTimeline(timeline, name))
+	var data = this._createTimeline(timeline, name)
+	this.timelinesData.push(data)
 	this.emit('load')
+	return data
 }
 
 module.exports = EditorBase

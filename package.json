@@ -23,6 +23,7 @@
     "keycode": "^0.3.0",
     "keytime": "0.0.7",
     "lerp": "^1.0.0",
+    "mouse-event-offset": "^1.0.1",
     "number-editor": "^1.0.0"
   },
   "devDependencies": {

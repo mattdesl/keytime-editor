@@ -46,7 +46,7 @@ module.exports = function(editor, timeline, name) {
     	classes.remove(element, 'layer-open')
     })
 
-	createAnimation(editor, ret)
+	ret.animationContainer = createAnimation(editor, ret)
 
     editor.leftPanel.appendChild(element)
     return ret

@@ -9,12 +9,19 @@
 	position: absolute;
 	bottom: 0;
 	left: 0;
+		
+	overflow-y: scroll;
+	max-height: 150px;
+	border-top: 1px solid #b0b0b0;
 }
-
 
 /*
 	Editors
  */
+
+.hide {
+	display: none;
+}
 
 .number-editor {
 	width: 40px;
