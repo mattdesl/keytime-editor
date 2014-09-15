@@ -136,10 +136,13 @@ Editor.prototype._onDrag = function(ev, offset, delta) {
 
 	var rect = this.propertyDrag.getBoundingClientRect()
     offset = getMouseOffset(ev, { clientRect: rect })
+    offset.x = Math.max(0, offset.x)
+
 	if (this.draggingKeyframe) {
 		this.draggingKeyframe.element.style.left = Math.round(offset.x)+'px'
 		this.draggingKeyframe.keyframe.time = offset.x/SCALE
 		this.draggingKeyframe.propertyData.updateKeyframes()
+		this._updateProperties()
 	} else {
 		this.playhead(offset.x / SCALE)
 	}
@@ -198,6 +201,7 @@ Editor.prototype._updateProperties = function() {
             propData.currentKeyframe = highlight
         })
     })
+	this.emit('update')
 }
 
 Editor.prototype.createEasingSelect = function(options) {
@@ -309,14 +313,23 @@ Editor.prototype._createKeyframe = function(propertyData, keyframe) {
 	events.on(ret.element, 'dblclick', function(ev) {
 		ev.stopPropagation()
     	ev.preventDefault()
-		this.draggingKeyframe = null
-		this._removeKeyframeAt(propertyData.timelineData, propertyData, keyframe)
+
+		if (ev.shiftKey) {
+			this.draggingKeyframe = null
+			this._removeKeyframeAt(propertyData.timelineData, propertyData, keyframe)
+		}
 	}.bind(this))
 	return ret
 }
 
 Editor.prototype.appendTo = function(element) {
 	element.appendChild(this.element)
+}
+
+Editor.prototype.timelines = function() {
+	return this.timelinesData.map(function(t) {
+		return { name: t.name, timeline: t.timeline.export() }
+	})
 }
 
 Editor.prototype.constraint = function(name, constraints) {
@@ -363,7 +376,8 @@ Editor.prototype._updateShyLayers = function() {
 
 Editor.prototype.add = function(timeline, name) {
 	var ret = Base.prototype.add.call(this, timeline, name)
-	ret.animationContainer.style.minWidth = Math.round((timeline.duration()+1.0)*SCALE)+'px'
+	var dur = timeline.duration()
+	ret.animationContainer.style.minWidth = Math.round((dur+1.0)*SCALE)+'px'
 	return ret
 }
 

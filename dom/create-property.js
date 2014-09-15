@@ -49,6 +49,7 @@ module.exports = function(editor, timelineData, property) {
                 var key = ret._createKeyframe(timelineData.timeline, editor.playhead() )
                 ret.addKeyframe(editor, key)
             }
+            editor._updateProperties()
     	})
     }
 

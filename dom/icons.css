@@ -115,7 +115,9 @@
 }
 .easing:disabled {
 	color: currentColor;
+	pointer-events: none;
 }
+
 @-moz-document url-prefix() {
     .easing {
         width: 75px;

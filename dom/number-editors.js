@@ -2,6 +2,7 @@ var numberEditor = require('number-editor')
 var classes = require('dom-classes')
 var lerp = require('lerp')
 var EventEmitter = require('events').EventEmitter
+var events = require('dom-events')
 
 function NumberEditors(count, opt) {
     if (!(this instanceof NumberEditors))
