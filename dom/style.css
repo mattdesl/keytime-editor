@@ -4,10 +4,13 @@
 
 
 .keytime-editor-container {
+	font-family: 'Geneva', sans-serif;
+	font-size: 12px;
 	width: 100%;
 	height: auto;
 	position: absolute;
 	bottom: 0;
+	color: #161616;
 	left: 0;
 		
 	overflow-y: scroll;
@@ -25,14 +28,19 @@
 
 .number-editor {
 	width: 40px;
+	font-family: 'Courier New', monospace;
+	font-size: 11px;
+	letter-spacing: 0;
 	border: 0;
 	text-align: right;
-	color: #cd7016;
+	color: #4e5c60;
 	font-weight: bold;
-	border-bottom: 1px dotted #cd7016;
+	border-bottom: 1px dotted #4e5c60;
 	background: transparent;
 	margin-right: 5px;
 	margin-left: 5px;
+	position: relative;
+	bottom: 2px;
 }
 
 /*
@@ -44,7 +52,8 @@
 	top: 0;
 	left: 0;
 	z-index: 10;
-	background: blue;
+	background: #e82121;
+	box-shadow: 0 0 0 0.5px #e82121;
 	opacity: 0.5;
 	width: 1px;
 	height: 100%;
@@ -60,9 +69,9 @@
 	padding: 0;
 	display: inline-block;
 	border-radius: 50% 50%;
-	border: 2px solid red;
-	width: 4px;
-	height: 4px;
+	color: #72aab8;
+	width: 8px;
+	height: 8px;
 }
 
 /*
@@ -80,10 +89,10 @@
 .animations-layer {
 	line-height: 22px;
 }
-.animations-layer:nth-child(odd) { 
+.timeline-layer:nth-child(odd), .animations-layer:nth-child(even) { 
     background-color:#dcdcdc; 
 }
-.animations-layer:nth-child(even) { 
+.timeline-layer:nth-child(even), .animations-layer:nth-child(odd) { 
     background-color:#c5c5c5; 
 }
 .animations-layer {
@@ -132,12 +141,13 @@
 	display: inline-block;
 }
 
-.timeline-layer:nth-child(odd) { 
+
+/*.timeline-layer:nth-child(odd) { 
     background-color:#dcdcdc; 
 }
 .timeline-layer:nth-child(even) { 
     background-color:#c5c5c5; 
-}
+}*/
 
 .timeline-control, .animations-control {
 	height: 22px;
@@ -147,8 +157,16 @@
 	padding-right: 5px;
  	border-top: 1px solid #b0b0b0;
 }
+
 .controls:first-child {
 	border-top: 0;
+}
+
+.timeline-control > .name {
+	position: relative;
+	top: -1px;
+	left: 5px;
+	display: inline-block;
 }
 
 .keyframe-previous, .keyframe-next, .keyframe-toggle {
@@ -194,5 +212,9 @@
 
 
 .highlight {
-	background-color: rgb(236,242,255);
+	background-color: #f8f8f8;
 }
+.keyframe.highlight {
+	color: #dd3f3f;
+}
+

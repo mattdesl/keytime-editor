@@ -6,9 +6,12 @@ var clickdrag = require('clickdrag')
 var events = require('dom-events')
 var keycode = require('keycode')
 var getMouseOffset = require('mouse-event-offset')
+var xtend = require('xtend')
 
 var NumberEditors = require('./dom/number-editors')
 var createTimeline = require('./dom/create-timeline')
+var SelectBox = require('./dom/select-box')
+var eases = require('eases')
 
 var SCALE = 100
 
@@ -18,7 +21,17 @@ function Editor() {
 
 	Base.call(this)
 	
+	this.easings = Object.keys(eases)
+	this.easings = this.easings.filter(function(e) {
+		return 'linear'
+	})
+	this.easings.unshift({ disabled: true, name: '—' })
+	this.easings.unshift('linear')
+
 	this.constraints = {}
+
+	this.keyEvents = true
+	// this.editable = true
 
     this.element = domify('<div class="keytime-editor-container">')
     this.leftPanel = domify('<div class="timeline-container">')
@@ -36,12 +49,11 @@ function Editor() {
     this.on('keyframe-remove', this._removeKeyframe.bind(this))
 
     this.on('load', handlePlayhead.bind(this))
-    
 
     this.draggable = clickdrag(this.rightPanel)
     this.propertyDrag = null
-    this.draggable.on('start', onDragStart.bind(this))
-    this.draggable.on('move', onDrag.bind(this))
+    this.draggable.on('start', this._onDragStart.bind(this))
+    this.draggable.on('move', this._onDrag.bind(this))
     this.draggable.on('end', onDragEnd.bind(this))
     this.draggingKeyframe = null
 
@@ -64,6 +76,9 @@ function Editor() {
 inherits(Editor, Base)
 
 function handleKey(ev) {
+	if (!this.keyEvents)
+		return
+
 	var key = keycode(ev)
 	if (key === 'left') {
 		ev.preventDefault()
@@ -77,7 +92,7 @@ function handleKey(ev) {
 		ev.preventDefault()
 		if (this.highlightProperty) 
 			this.emit('keyframe-toggle', this.highlightProperty.timelineData, this.highlightProperty)
-	} else if (key === 'del') {
+	} else if (key === 'delete' || key === 'backspace') {
 		ev.preventDefault()
 		if (this.highlightProperty) 
 			this.emit('keyframe-remove', this.highlightProperty.timelineData, this.highlightProperty)
@@ -93,22 +108,22 @@ function keyframeNext(goNext, propertyData) {
     }
 }
 
-function onDragStart(ev) {
+Editor.prototype._onDragStart = function(ev, offset, delta) {
 	if (this.draggingKeyframe)
 		this.propertyDrag = this.draggingKeyframe.element.parentNode
 	else
 		this.propertyDrag = ev.target
-	onDrag(ev)
+	this._onDrag(ev, offset, delta)
 }
 
-function onDrag(ev, offset, delta) {
+Editor.prototype._onDrag = function(ev, offset, delta) {
 	ev.preventDefault()	
+
 	if (!this.propertyDrag)
 		return
 
 	var rect = this.propertyDrag.getBoundingClientRect()
     offset = getMouseOffset(ev, { clientRect: rect })
-    
 	if (this.draggingKeyframe) {
 		this.draggingKeyframe.element.style.left = Math.round(offset.x)+'px'
 		this.draggingKeyframe.keyframe.time = offset.x/SCALE
@@ -146,25 +161,51 @@ Editor.prototype._updateProperties = function() {
 			propData.updateEditor(curVal)
 
             var highlight = prop.keyframes.get(curTime)
+            var hasHighlight = false
             propData.keyframeData.forEach(function(k) {
-                k.element.style.borderColor = k.keyframe===highlight ? 'green' : 'red'
+            	classes.remove(k.element, 'highlight')
+            	if (k.keyframe===highlight) {
+            		hasHighlight = true
+	                classes.add(k.element, 'highlight')
+	            }
             })
+
+            classes.remove(propData.element, 'has-keyframe')
+            if (hasHighlight) 
+            	classes.add(propData.element, 'has-keyframe')
+
+            if (propData.easingBox) {
+            	var box = propData.easingBox.element
+            	if (hasHighlight) {
+	            	box.removeAttribute('disabled')
+	            	propData.easingBox.select(highlight.ease || 'linear')
+	            } else
+	            	box.setAttribute('disabled', 'disabled')
+	        }
+            propData.currentKeyframe = highlight
         })
     })
+}
+
+Editor.prototype.createEasingSelect = function(options) {
+	return new SelectBox(xtend(options||{}, { data: this.easings }))
 }
 
 Editor.prototype.createValueEditor = function(timeline, property) {
 	var value = timeline.valueOf(0, property)
 	
 	var opt = null
+	var editor = null
 	if (property.name in this.constraints)
 		opt = this.constraints[property.name]
 	if (typeof value === 'number') {
-		return NumberEditors(1, opt)
+		editor = NumberEditors(1, opt)
 	} else if (Array.isArray(value)) {
-		return NumberEditors(value.length, opt)
+		editor = NumberEditors(value.length, opt)
 	}
-	return null
+	if (editor)
+		editor.value = value
+	return editor
 }
 
 function setVisible(timelineData, vis) {
@@ -208,11 +249,20 @@ Editor.prototype._toggleKeyframe = function(timelineData, propertyData) {
 	this._updateProperties()
 }
 
+Editor.prototype._removeKeyframeAt = function(timelineData, propertyData, frame) {
+	var idx = propertyData.property.keyframes.frames.indexOf(frame)
+	if (idx !== -1) {
+		propertyData.removeKeyframeAt(this, timelineData.timeline, idx)
+		this._updateProperties()		
+	}
+}
+
 Editor.prototype._removeKeyframe = function(timelineData, propertyData) {
 	var time = this.playhead()
 	propertyData.removeKeyframe(this, timelineData.timeline, time)
 	this._updateProperties()		
 }
+
 
 Editor.prototype._createKeyframe = function(propertyData, keyframe) {
 	//TODO: use keyframe-data here
@@ -225,6 +275,12 @@ Editor.prototype._createKeyframe = function(propertyData, keyframe) {
 	ret.element.style.left = Math.round(keyframe.time*SCALE)+'px'
 	events.on(ret.element, 'mousedown', function(ev) {
 		this.draggingKeyframe = ret
+	}.bind(this))
+	events.on(ret.element, 'dblclick', function(ev) {
+		ev.stopPropagation()
+    	ev.preventDefault()
+		this.draggingKeyframe = null
+		this._removeKeyframeAt(propertyData.timelineData, propertyData, keyframe)
 	}.bind(this))
 	return ret
 }

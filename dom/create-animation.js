@@ -29,6 +29,12 @@ module.exports = function(editor, timelineData) {
 	    	editor.emit('highlight-property', propData)
 	    })
 
+	    events.on(propElement, 'dblclick', function(ev) {
+	    	ev.stopPropagation()
+	    	ev.preventDefault()
+	        editor.emit('keyframe-toggle', timelineData, propData)
+	    })
+
 		container.appendChild(propElement)
 	})
 

@@ -46,6 +46,8 @@ Object.defineProperty(NumberEditors.prototype, "value", {
         if (typeof array === 'number' && this.editors.length === 1) {
             this.editors[0].value = array
         } else {
+            if (!array)
+                debugger
             array.forEach(function(v, i) { 
                 this.editors[i].value = v
             }.bind(this))

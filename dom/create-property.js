@@ -4,6 +4,7 @@ var hyperglue = require('hyperglue')
 var $ = require('dom-select')
 var classes = require('dom-classes')
 var events = require('dom-events')
+var domify = require('domify')
 
 var BaseProperty = require('../lib/property-data')
 
@@ -17,16 +18,32 @@ module.exports = function(editor, timelineData, property) {
     })
     ret.element = element
 
+    var easeElement = $('.easing', element)
+    ret.easingBox = editor.createEasingSelect({ element: easeElement })
+
     var valueEditor = editor.createValueEditor(timelineData.timeline, property)
+    var controlPanel = $('.control-editor', element)
     if (valueEditor && valueEditor.element) {
-    	$('.control-editor', element).appendChild(valueEditor.element)
+    	controlPanel.appendChild(valueEditor.element)
     	ret.valueEditor = valueEditor
+
+        //set default property
+        property.value = valueEditor.value
 
     	valueEditor.on('change', function() {
     		var current = property.keyframes.get( editor.playhead() )
-	        if (current) {
+	        if (current) { //adjust current keyframe
+                property.value = valueEditor.value
 	            current.value = valueEditor.value
-	        }
+	        } 
+            // else if (property.keyframes.count === 0) { //no keyframes, adjust constant
+            //     property.value = valueEditor.value
+            // } 
+            else {
+                console.log("ADD")
+                var key = ret._createKeyframe(timelineData.timeline, editor.playhead() )
+                ret.addKeyframe(editor, key)
+            }
     	})
     }
 

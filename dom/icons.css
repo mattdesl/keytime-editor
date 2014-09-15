@@ -1,0 +1,134 @@
+.keyframe-next, 
+.keyframe-previous, 
+.keyframe-toggle, 
+.expand,
+.easing-container {
+	display: inline-block;
+	opacity: 0.6;
+	padding: 0;
+	margin: 0;
+	/*width: 4px;*/
+	top: -3px;
+	font-family: 'Courier New', monospace;
+	position: relative;
+	-webkit-transition: opacity 0.25s ease;
+	-moz-transition: opacity 0.25s ease;
+	-ms-transition: opacity 0.25s ease;
+	-o-transition: opacity 0.25s ease;
+	transition: opacity 0.25s ease;
+}
+.keyframe-next:hover, 
+.keyframe-previous:hover, 
+.keyframe-toggle:hover,
+.expand:hover,
+.easing:after {
+	opacity: 1.0;
+}
+
+.keyframe-next, .keyframe-previous {
+	padding-right: 4px;
+	padding-left: 4px;
+}
+
+.keyframe-next:after, .keyframe-previous:after {
+	font-size: 9px;
+	font-weight: bold;
+}
+.keyframe-previous:after {
+	content: '<';
+}
+.keyframe-next:after {
+	content: '>';
+}
+.keyframe-toggle {
+	top: 0px;
+}
+.keyframe-toggle:after {
+	content: '•';
+	font-size: 19px;
+}
+
+.layer-open > .timeline-header > .expand:after {
+	content: '-';
+}
+.expand {
+	padding-left: 5px;
+	padding-right: 5px;
+	position: relative;
+	top: -1px;
+}
+.expand:after {
+	font-weight: bold;
+	content: '>';
+}
+
+.keyframe:after {
+	content: '\2666';
+	position: relative;
+	top: -6px;
+	left: 1px;
+	font-weight: bold;
+	font-size: 14px;
+}
+
+.easing-container {
+	width: 65px;
+	height: 16px;
+	border: 1px solid transparent;
+	box-sizing: border-box;
+	background: #ababab;
+	border-radius: 2px 2px;
+	opacity: 0.25;
+	-webkit-transition: all 0.25s ease;
+	-moz-transition: all 0.25s ease;
+	-ms-transition: all 0.25s ease;
+	-o-transition: all 0.25s ease;
+	transition: all 0.25s ease;
+	margin-left: 5px;
+	margin-right: 0px;
+	text-align: center;
+	color: black;
+	padding: 0;
+	position: relative;
+	top: 3px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: clip;
+	float: right;
+}
+
+.easing {
+	cursor: default;
+	border: 0;
+	background: none;
+	outline: 0;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
+	width: 65px;
+	height: 16px;
+	display: inline-block;
+	font-size: 8px;
+	position: relative;
+	top: -3px;
+	left: 4px;
+}
+.easing:disabled {
+	color: currentColor;
+}
+@-moz-document url-prefix() {
+    .easing {
+        width: 75px;
+    }
+}
+.timeline-control.has-keyframe > .easing-container {
+	opacity: 1.0;
+}
+
+.timeline-control.has-keyframe > .easing-container > .easing {
+	cursor: pointer;
+}
+
+.timeline-control.has-keyframe > .easing-container:hover {
+	border: 1px solid #969696;
+}

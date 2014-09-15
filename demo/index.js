@@ -3,7 +3,7 @@ var rgba = require('color-style')
 
 var timeline = require('keytime')(data) //require('keytime')
 
-require('canvas-testbed')(render, start)
+require('canvas-testbed')(render, start, { once: false })
 
 var time = 0
 var endDelay = 1
@@ -28,6 +28,7 @@ function start() {
 	editor.constraint('alpha', { min: 0, max: 1, step: 0.05, decimals: 2 })
 	editor.constraint('fill', { min: 0, max: 255 })
 	editor.add(timeline, 'shape')
+	// editor.add(timeline, 'shape2')
 
 	process.nextTick(function() {
 		editor.appendTo(document.body)
