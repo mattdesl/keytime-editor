@@ -64,9 +64,9 @@
 	position: absolute;
 	top: 10px;
 	cursor: ew-resize;
-	left: 0;
+	left: -0px;
 	margin: -4px 0 0 -4px;
-	padding: 0;
+	padding: 0px;
 	display: inline-block;
 	border-radius: 50% 50%;
 	color: #72aab8;
@@ -222,6 +222,7 @@
 }
 .keyframe.highlight {
 	color: #dd3f3f;
+	background-color: transparent;
 }
 
 

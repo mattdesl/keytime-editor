@@ -209,6 +209,7 @@ Editor.prototype.valueEditor = function(name, func) {
 		this.editors[name] = undefined
 	else
 		this.editors[name] = func
+	return this
 }
 
 Editor.prototype.createValueEditor = function(timeline, property) {
@@ -319,7 +320,13 @@ Editor.prototype.appendTo = function(element) {
 }
 
 Editor.prototype.constraint = function(name, constraints) {
-	this.constraints[name] = constraints
+	if (Array.isArray(name)) {
+		name.forEach(function(n) {
+			this.constraints[n] = constraints
+		}.bind(this))
+	}
+	else
+		this.constraints[name] = constraints
 }
 
 Editor.prototype.clear = function() {
@@ -356,8 +363,8 @@ Editor.prototype._updateShyLayers = function() {
 
 Editor.prototype.add = function(timeline, name) {
 	var ret = Base.prototype.add.call(this, timeline, name)
-
 	ret.animationContainer.style.minWidth = Math.round((timeline.duration()+1.0)*SCALE)+'px'
+	return ret
 }
 
 module.exports = Editor
