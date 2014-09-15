@@ -20,6 +20,11 @@ module.exports = function(editor, timelineData, property) {
 
     var easeElement = $('.easing', element)
     ret.easingBox = editor.createEasingSelect({ element: easeElement })
+    if (ret.easingBox) {
+        ret.easingBox.on('change', function(ev) {
+            editor.emit('select-easing', ret)
+        })
+    }
 
     var valueEditor = editor.createValueEditor(timelineData.timeline, property)
     var controlPanel = $('.control-editor', element)

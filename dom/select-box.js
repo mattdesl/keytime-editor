@@ -1,4 +1,3 @@
-var domval = require('dom-value')
 var events = require('dom-events')
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
@@ -6,12 +5,14 @@ var inherits = require('inherits')
 function Select(opt) {
 	if (!(this instanceof Select))
 		return new Select(opt)
+	EventEmitter.call(this)
 	opt = opt||{}
 	if (Array.isArray(opt))
 		opt = { data: opt }
 	this.element = opt.element || document.createElement("select")
 	this.data = []
-
+	events.on(this.element, 'change', this.emit.bind(this, 'change'))
+	
 	if (opt.data) 
 		this.set(opt.data)
 }
@@ -25,6 +26,10 @@ Select.prototype.select = function(value) {
 		else
 			f.element.removeAttribute('selected')
 	})
+}
+
+Select.prototype.selected = function() {
+	return this.data[this.element.selectedIndex].value
 }
 
 Select.prototype.clear = function() {

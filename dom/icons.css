@@ -121,14 +121,14 @@
         width: 75px;
     }
 }
-.timeline-control.has-keyframe > .easing-container {
+.timeline-control.has-easing > .easing-container {
 	opacity: 1.0;
 }
 
-.timeline-control.has-keyframe > .easing-container > .easing {
+.timeline-control.has-easing > .easing-container > .easing {
 	cursor: pointer;
 }
 
-.timeline-control.has-keyframe > .easing-container:hover {
+.timeline-control.has-easing > .easing-container:hover {
 	border: 1px solid #969696;
 }

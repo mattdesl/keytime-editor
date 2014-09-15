@@ -13,6 +13,8 @@ var createTimeline = require('./dom/create-timeline')
 var SelectBox = require('./dom/select-box')
 var eases = require('eases')
 
+var noop = function() { return null }
+
 var SCALE = 100
 
 function Editor() {
@@ -21,6 +23,7 @@ function Editor() {
 
 	Base.call(this)
 	
+	this.defaultConstraint = { decimals: 1 }
 	this.easings = Object.keys(eases)
 	this.easings = this.easings.filter(function(e) {
 		return 'linear'
@@ -29,7 +32,8 @@ function Editor() {
 	this.easings.unshift('linear')
 
 	this.constraints = {}
-
+	this.editors = {}
+	this.shyNames = []
 	this.keyEvents = true
 	// this.editable = true
 
@@ -49,6 +53,7 @@ function Editor() {
     this.on('keyframe-remove', this._removeKeyframe.bind(this))
 
     this.on('load', handlePlayhead.bind(this))
+    this.on('load', this._updateShyLayers.bind(this))
 
     this.draggable = clickdrag(this.rightPanel)
     this.propertyDrag = null
@@ -67,6 +72,13 @@ function Editor() {
     	this.highlightProperty = prop
     	classes.add(prop.element, 'highlight')
     	classes.add(prop.animationElement, 'highlight')
+    }.bind(this))
+
+    this.on('select-easing', function(propertyData) {
+    	var ease = propertyData.easingBox.selected()
+    	if (propertyData.currentKeyframe) {
+    		propertyData.currentKeyframe.ease = ease
+    	}
     }.bind(this))
 
     events.on(document, 'keydown', handleKey.bind(this), true)
@@ -160,23 +172,24 @@ Editor.prototype._updateProperties = function() {
 			var curVal = timeline.valueOf(curTime, prop)	
 			propData.updateEditor(curVal)
 
-            var highlight = prop.keyframes.get(curTime)
-            var hasHighlight = false
+            var highlightIdx = prop.keyframes.getIndex(curTime)
+            var highlight = prop.keyframes.frames[highlightIdx]
+            var hasKeyframe = highlightIdx > 0
             propData.keyframeData.forEach(function(k) {
             	classes.remove(k.element, 'highlight')
             	if (k.keyframe===highlight) {
-            		hasHighlight = true
 	                classes.add(k.element, 'highlight')
 	            }
             })
 
-            classes.remove(propData.element, 'has-keyframe')
-            if (hasHighlight) 
-            	classes.add(propData.element, 'has-keyframe')
+
+            classes.remove(propData.element, 'has-easing')
+            if (hasKeyframe) 
+            	classes.add(propData.element, 'has-easing')
 
             if (propData.easingBox) {
             	var box = propData.easingBox.element
-            	if (hasHighlight) {
+            	if (hasKeyframe) {
 	            	box.removeAttribute('disabled')
 	            	propData.easingBox.select(highlight.ease || 'linear')
 	            } else
@@ -191,13 +204,29 @@ Editor.prototype.createEasingSelect = function(options) {
 	return new SelectBox(xtend(options||{}, { data: this.easings }))
 }
 
+Editor.prototype.valueEditor = function(name, func) {
+	if (!func)
+		this.editors[name] = undefined
+	else
+		this.editors[name] = func
+}
+
 Editor.prototype.createValueEditor = function(timeline, property) {
 	var value = timeline.valueOf(0, property)
 	
-	var opt = null
+
+	var opt = this.defaultConstraint
 	var editor = null
-	if (property.name in this.constraints)
-		opt = this.constraints[property.name]
+	var name = property.name
+	if (name in this.constraints)
+		opt = xtend(opt, this.constraints[name])
+
+	//custom editor
+	if (name in this.editors &&
+			typeof this.editors[name] === 'function') {
+		return this.editors[name](timeline, property, value, opt) 
+	}
+
 	if (typeof value === 'number') {
 		editor = NumberEditors(1, opt)
 	} else if (Array.isArray(value)) {
@@ -298,6 +327,31 @@ Editor.prototype.clear = function() {
 		t.dispose()
 	})
 	this.timelinesData.length = 0
+}
+
+Editor.prototype.shy = function(names) {
+	names = typeof names === 'string' ? [names] : names
+	names.forEach(function(n) {
+		if (this.shyNames.indexOf(n) === -1)
+			this.shyNames.push(n)
+	}.bind(this))
+	this._updateShyLayers()
+	return this
+}
+
+Editor.prototype._updateShyLayers = function() {
+	var shyNames = this.shyNames
+	this.timelinesData.forEach(function(t) {
+		t.propertyData.forEach(function(p) {
+			var shy = shyNames.indexOf(p.property.name) !== -1
+			classes.remove(p.element, 'shy')
+			classes.remove(p.animationElement, 'shy')
+			if (shy) {
+				classes.add(p.element, 'shy')
+				classes.add(p.animationElement, 'shy')
+			}
+		})
+	})
 }
 
 Editor.prototype.add = function(timeline, name) {

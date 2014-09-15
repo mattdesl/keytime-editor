@@ -205,6 +205,12 @@
 .animations-layer.layer-open > .animations-control {
 	display: block;
 }
+.animations-layer.layer-open > .animations-control.shy {
+	display: none;
+}
+.shy {
+	display: none;
+}
 
 .layer-open > .timeline-header > .expand {
 	font-weight: bold;
@@ -217,4 +223,5 @@
 .keyframe.highlight {
 	color: #dd3f3f;
 }
+
 

@@ -26,9 +26,10 @@ function render(ctx, width, height, dt) {
 
 function start() {
 	editor.constraint('alpha', { min: 0, max: 1, step: 0.05, decimals: 2 })
-	editor.constraint('fill', { min: 0, max: 255 })
+	editor.constraint('fill', { min: 0, max: 255, decimals: 0 })
 	editor.add(timeline, 'shape')
 	// editor.add(timeline, 'shape2')
+
 
 	process.nextTick(function() {
 		editor.appendTo(document.body)
