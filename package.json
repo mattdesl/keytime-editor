@@ -1,6 +1,6 @@
 {
   "name": "keytime-editor",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "a simple timeline editor for keytime",
   "main": "index.js",
   "license": "MIT",
