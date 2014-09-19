@@ -1,13 +1,7 @@
 var Timeline = require('./lib/timeline-data')
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
-
-function indexOfName(list, name) {
-	for (var i=0; i<list.length; i++)
-		if (list[i].name === name)
-			return i
-	return -1
-}
+var indexOfName = require('./indexof-name')
 
 function EditorBase() {
 	if (!(this instanceof EditorBase))

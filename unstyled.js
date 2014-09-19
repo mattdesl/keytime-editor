@@ -174,8 +174,6 @@ function handlePlayhead(time) {
 	this._updateProperties()
 }
 
-
-
 //Creates a new timeline object which has { element, open, name, dispose }
 Editor.prototype._createTimeline = function(timeline, name) {
 	return createTimeline(this, timeline, name)
