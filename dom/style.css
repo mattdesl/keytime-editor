@@ -53,9 +53,10 @@
 	left: 0;
 	z-index: 10;
 	background: #e82121;
-	box-shadow: 0 0 0 0.5px #e82121;
+	/*box-shadow: 0 0 0 0.5px #e82121;*/
 	opacity: 0.5;
-	width: 1px;
+	width: 2px;
+	margin-left: 0px;
 	height: 100%;
 	pointer-events: none;
 }

@@ -19,6 +19,8 @@ function NumberEditors(count, opt) {
         classes.add(editor.element, 'number-editor')
         
         editor.on('change', this.emit.bind(this, 'change'))
+        editor.on('edit-start', this.emit.bind(this, 'edit-start'))
+        editor.on('edit-stop', this.emit.bind(this, 'edit-stop'))
         this.editors.push( editor )
         this.element.appendChild(editor.element)
     }
@@ -32,6 +34,14 @@ NumberEditors.prototype.lerp = function(other, a) {
         e.value = lerp(e.value, other[i], a)
     }
 }
+
+Object.defineProperty(NumberEditors.prototype, "editing", {
+    get: function() {
+        return this.editors.some(function(e) {
+            return e.editing
+        })
+    }
+})
 
 Object.defineProperty(NumberEditors.prototype, "value", {
     get: function() {

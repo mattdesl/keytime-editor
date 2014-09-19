@@ -27,7 +27,7 @@
     "keytime": "0.0.7",
     "lerp": "^1.0.0",
     "mouse-event-offset": "^1.0.1",
-    "number-editor": "^1.0.0",
+    "number-editor": "^1.1.0",
     "xtend": "^4.0.0"
   },
   "devDependencies": {

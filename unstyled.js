@@ -55,6 +55,9 @@ function Editor() {
     this.on('load', handlePlayhead.bind(this))
     this.on('load', this._updateShyLayers.bind(this))
 
+    events.on(document, 'keydown', handleKey.bind(this), false)
+    this.currentEditor = null
+
     this.draggable = clickdrag(this.rightPanel)
     this.propertyDrag = null
     this.draggable.on('start', this._onDragStart.bind(this))
@@ -78,10 +81,14 @@ function Editor() {
     	var ease = propertyData.easingBox.selected()
     	if (propertyData.currentKeyframe) {
     		propertyData.currentKeyframe.ease = ease
+    	} else {
+    		var keyframes = propertyData.property.keyframes
+    		var next = keyframes.next( this.playhead() )
+    		if (next)
+    			next.ease = ease
     	}
     }.bind(this))
 
-    events.on(document, 'keydown', handleKey.bind(this), true)
 
 }
 
@@ -93,10 +100,16 @@ function handleKey(ev) {
 
 	var key = keycode(ev)
 	if (key === 'left') {
+		if (this.currentEditor && this.currentEditor.editing)
+			return
+
 		ev.preventDefault()
 		if (this.highlightProperty) 
 			this.emit('keyframe-previous', this.highlightProperty)
 	} else if (key === 'right') {
+		if (this.currentEditor && this.currentEditor.editing)
+			return
+		
 		ev.preventDefault()
 		if (this.highlightProperty) 
 			this.emit('keyframe-next', this.highlightProperty)
@@ -105,6 +118,9 @@ function handleKey(ev) {
 		if (this.highlightProperty) 
 			this.emit('keyframe-toggle', this.highlightProperty.timelineData, this.highlightProperty)
 	} else if (key === 'delete' || key === 'backspace') {
+		if (this.currentEditor && this.currentEditor.editing)
+			return
+		
 		ev.preventDefault()
 		if (this.highlightProperty) 
 			this.emit('keyframe-remove', this.highlightProperty.timelineData, this.highlightProperty)
@@ -177,7 +193,7 @@ Editor.prototype._updateProperties = function() {
 
             var highlightIdx = prop.keyframes.getIndex(curTime)
             var highlight = prop.keyframes.frames[highlightIdx]
-            var hasKeyframe = highlightIdx > 0
+
             propData.keyframeData.forEach(function(k) {
             	classes.remove(k.element, 'highlight')
             	if (k.keyframe===highlight) {
@@ -185,16 +201,19 @@ Editor.prototype._updateProperties = function() {
 	            }
             })
 
+            var nextFrame = highlight || prop.keyframes.next(curTime)
+            var curEase = nextFrame
+            var hasEasing = nextFrame && nextFrame !== prop.keyframes.frames[0]
 
             classes.remove(propData.element, 'has-easing')
-            if (hasKeyframe) 
+            if (hasEasing) 
             	classes.add(propData.element, 'has-easing')
 
             if (propData.easingBox) {
             	var box = propData.easingBox.element
-            	if (hasKeyframe) {
+            	if (hasEasing) {
 	            	box.removeAttribute('disabled')
-	            	propData.easingBox.select(highlight.ease || 'linear')
+	            	propData.easingBox.select(curEase.ease || 'linear')
 	            } else
 	            	box.setAttribute('disabled', 'disabled')
 	        }
@@ -239,7 +258,19 @@ Editor.prototype.createValueEditor = function(timeline, property) {
 	}
 	if (editor)
 		editor.value = value
+	if (typeof editor.on === 'function') {
+		editor.on('edit-start', this._setValueEditor.bind(this, editor))
+		editor.on('edit-stop', this._clearValueEditor.bind(this))
+	}
 	return editor
+}
+
+Editor.prototype._setValueEditor = function(editor) {
+	this.currentEditor = editor
+}
+
+Editor.prototype._clearValueEditor = function() {
+	this.currentEditor = null
 }
 
 function setVisible(timelineData, vis) {
