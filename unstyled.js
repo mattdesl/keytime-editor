@@ -254,11 +254,12 @@ Editor.prototype.createValueEditor = function(timeline, property) {
 	} else if (Array.isArray(value)) {
 		editor = NumberEditors(value.length, opt)
 	}
-	if (editor)
+	if (editor) {
 		editor.value = value
-	if (typeof editor.on === 'function') {
-		editor.on('edit-start', this._setValueEditor.bind(this, editor))
-		editor.on('edit-stop', this._clearValueEditor.bind(this))
+		if (typeof editor.on === 'function') {
+			editor.on('edit-start', this._setValueEditor.bind(this, editor))
+			editor.on('edit-stop', this._clearValueEditor.bind(this))
+		}
 	}
 	return editor
 }
